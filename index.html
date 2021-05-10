@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <!-- set styles on the top -->
+    <style>
+        .chart-container {
+            max-width: 1050px;
+
+            margin: 0 auto;
+            /* auto centers the div */
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+
+        svg {
+     
+            overflow: visible;
+            margin-left: 30px;
+        }
+
+        h1 {
+            margin: 25 auto;
+            border: 20px solid white;
+        }
+
+        .x .tick line {
+            stroke: #eee;
+            stroke-width: 1px;
+            opacity: 1;
+        }
+
+        .y .tick line {
+            stroke: #eee;
+            stroke-width: 1px;
+            opacity: 1;
+        }
+
+        .x .domain {
+            display: none;
+        }
+
+        .y .domain {
+            display: none;
+        }
+
+        .y .tick text {
+            font-size: 14px;
+            fill: #999;
+
+        }
+
+        .x .tick text {
+            font-size: 14px;
+            fill: #999;
+        }
+
+        .label {
+            font-size: 35px;
+            font-weight: 200;
+        }
+
+        .axis-label {
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .source {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="chart-container">
+        <h1 class="headline">
+        </h1>
+        <!-- The Decline Of Farming And The Rise Of Everything Else -->
+
+        <svg width="1050px" height="575px">
+        </svg>
+        <!-- <p class="source">Source: IPUMS-USA, University Of Minnesota -->
+
+        </p>
+
+    </div>
+</body>
+
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<!-- we're using d3 version 6 (the latest version) for all out work -->
+
+<script>
+    console.log({ d3 })
+
+    let width = 800;
+    let height = 500;
+
+    let svg = d3.select("body")
+        .select("svg")
+
+    d3.csv("healthcare-disposable-inc.csv").then(function (data) {
+
+        data.forEach(function (row) {
+            row.group = row['Percentile']
+            row.percentile = +row['Percentile']
+            row.medicaid = +row['Medicare+Medicaid']
+            row.chip = +row['CHIP']
+            row.military = +row['Military']
+            row.purchase = +row['Direct Purchase']
+            row.employer = +row['Employer']
+            row.other = +row['Other']
+            row.uninsured = +row['Uninsured']
+            row.subsidized = +row['Subsidized Exchange']
+
+        })
+        console.log({data})
+
+        let margin = { top: 10, right: 10, bottom: 10, left: 30 };
+        const p = Math.max(0, d3.precisionFixed(0.05) - 2);
+        const formatValue = d3.format("." + p + "%");
+
+        let sel_cols = [
+            "Medicaid",
+            "Medicare",
+            "Medicare+Medicaid",
+            "Employer",
+            "Uninsured",
+            "Direct Purchase",
+            "Subsidized Exchange",
+            "CHIP",
+            "Military",
+            "Other"
+        ]
+
+        let sel_colors = [
+            "rgb(244,67,54)", // "Medicaid",
+            "rgb(255,152,0)", // "Medicare",
+            "rgb(253,216,53)", // "Medicare+Medicaid",
+            "rgb(255,248,225)", // "Employer",
+            "rgb(38,166,154)", // "Uninsured"
+            "rgb(77,208,225)", // "Direct Purchase"
+            "rgb(240,98,146)", // "Subsidized Exchange"
+            "rgb(92,107,192)", // "CHIP"
+            "rgb(144,164,174)", // "Military"
+            "rgb(224,224,224)" // "Other"
+
+        ]
+
+        let data09 = data.filter(d => d.year == "2009")
+        let data20 = data.filter(d => d.year == "2020")
+
+
+    //     //https://github.com/d3/d3-shape#stacks
+        let series = d3.stack().keys(sel_cols)(data09); // Main year! change here to update chart
+
+
+    //     // https://github.com/d3/d3-scale#ordinal-scales
+        let color = d3.scaleOrdinal()
+            .domain(sel_cols)
+            .range(sel_colors)
+
+        let x = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.percentile)])
+            .range([margin.left, width - margin.right])
+
+        let y = d3.scaleLinear()
+            .domain([0, 1])//d3.max(data, d => d.value)])
+            .range([height - margin.bottom, margin.top])
+
+
+    //     //https://github.com/d3/d3-shape#areas
+        let area = d3.area()
+            .x(d => x(d.data.percentile))
+            .y0(d => y(d[0]))
+            .y1(d => y(d[1]))
+
+        let xAxisSettings = d3.axisBottom(x)
+            .tickSize(20-height)
+            .tickValues([5,10,20,30,40,50,60,70,80,90,95])
+            .tickPadding(10)
+            .ticks(15)
+
+
+        let xAxis = svg.append("g")
+            .attr("class", "x axis")
+            .call(xAxisSettings)
+            .call(g => g.selectAll(".domain").remove())
+            .attr("transform", `translate(0,${height - margin.bottom})`)
+
+
+        let yAxisSettings = d3.axisLeft(y)
+            .ticks(5)
+            .tickSize(10-width)
+            .tickPadding(-15)
+            .tickValues([0.20, 0.40, .60,.80])
+            .tickFormat(function(d) { return formatValue(d); });
+
+
+        let yAxis = svg
+            .append("g")
+            .attr("class", "y axis")
+            .call(yAxisSettings)
+            .call(g => g.selectAll(".domain").remove())
+
+        //labelling 
+        svg.append("g")
+            .selectAll("path")
+            .data(series)
+            .join("path")
+            .attr("class", d =>  {
+                console.log(d)
+                return d.key
+            })
+            .attr("fill", d => color(d.key))
+            .attr("opacity", "0.95")
+            // .attr("stroke-width", "1px")
+            // .attr("stroke", "white")
+            .attr("d", area)
+            .append("title")
+
+        // text = svg.append('text').text('Notes')
+        //     .attr('x', 0)
+        //     .attr('y', height+55)
+        //     .attr('fill', '#666666')
+        //     .attr('font-size', '11px')
+        //     .attr('font-family', "Arial")
+        //     .attr('font-weight', 200)
+        //     .attr('font-weight', 'bold')
+
+        // text = svg.append('text').text('White collar includes professional and technical, managerial, sales and clerical jobs. Blue collar includes machine operators, assembly, manual labor and')
+        //     .attr('x', 0)
+        //     .attr('y', height+80)
+        //     .attr('fill', '#808080')
+        //     .attr('font-size', '12px')
+        //     .attr('font-family', "Arial")
+
+        // text = svg.append('text').text('construction jobs. Service includes food service, health care and personal service jobs')
+        //     .attr('x', 0)
+        //     .attr('y', height+95)
+        //     .attr('fill', '#808080')
+        //     .attr('font-size', '12px')
+        //     .attr('font-family', "Arial")
+
+        // text = svg.append('text').text('Source: IPUMS-USA, University Of Minnesota')
+        //     .attr('x', 0)
+        //     .attr('y', height+130)
+        //     .attr('fill', '#808080')
+        //     .attr('font-size', '12px')
+        //     .attr('font-family', "Arial")
+
+        // text = svg.append('text').text('Credit: Quoctrung Bui')
+        //     .attr('x', 0)
+        //     .attr('y', height+145)
+        //     .attr('fill', '#808080')
+        //     .attr('font-size', '12px')
+        //     .attr('font-family', "Arial")
+
+        // text = svg.append('text').text('The Decline Of Farming And The Rise Of Everything Else')
+        //     .attr('x', -10)
+        //     .attr('y', -15)
+        //     .attr('fill', '#666')
+        //     .attr('font-size', '25px')
+        //     .attr('font-family', 'gotham')
+        //     .attr('font-weight', 200)
+
+        // text = svg.append('text').text('Farming')
+        //     .attr('x', 220)
+        //     .attr('y', 425)
+        //     .attr('fill', '#333')
+        //     .attr('font-size', '20px')
+        //     .attr('font-family', 'Helvetica')
+
+        // text = svg.append('text').text('Other')
+        //     .attr('x', 600)
+        //     .attr('y', 485)
+        //     .attr('fill', '#333')
+        //     .attr('font-size', '20px')
+        //     .attr('font-family', 'Helvetica')
+
+        // text = svg.append('text').text('White Collar')
+        //     .attr('x', 625)
+        //     .attr('y', 400)
+        //     .attr('fill', '#333')
+        //     .attr('font-size', '20px')
+        //     .attr('font-family', 'Helvetica')
+
+        // text = svg.append('text').text('Services')
+        //     .attr('x', 615)
+        //     .attr('y', 275)
+        //     .attr('fill', '#333')
+        //     .attr('font-size', '20px')
+        //     .attr('font-family', 'Helvetica')
+        
+        // text = svg.append('text').text('Blue Collar')
+        //     .attr('x', 675)
+        //     .attr('y', 150)
+        //     .attr('fill', '#333')
+        //     .attr('font-size', '20px')
+        //     .attr('font-family', 'Helvetica')
+
+
+    })
+
+</script>
