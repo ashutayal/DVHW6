@@ -146,7 +146,7 @@
             "rgb(224,224,224)" // "Other"
 
         ]
-
+        let year_state = 2009;
         let data09 = data.filter(d => d.year == "2009")
         let data20 = data.filter(d => d.year == "2020")
 
@@ -204,7 +204,9 @@
             .call(g => g.selectAll(".domain").remove())
 
         //labelling 
-        svg.append("g")
+        let bars = svg.append("g")
+
+        bars
             .selectAll("path")
             .data(series)
             .join("path")
@@ -214,10 +216,62 @@
             })
             .attr("fill", d => color(d.key))
             .attr("opacity", "0.95")
-            // .attr("stroke-width", "1px")
-            // .attr("stroke", "white")
             .attr("d", area)
             .append("title")
+
+
+        function update() {
+            console.log("update")
+            console.log("old year state " + year_state);
+
+            if (year_state == 2009) {
+                year_state = 2020
+                series = d3.stack().keys(sel_cols)(data20);
+                dance(series)
+                // hed.html("U.S. Age Distribution, <span class='highlight'>In 2020</span>")
+
+            } else {
+                series = d3.stack().keys(sel_cols)(data09);
+                year_state = 2009
+                dance(series)
+                // hed.html("U.S. Age Distribution, <span class='highlight'>In 2009</span>")
+            }
+            console.log("new year state " + year_state);
+        }
+
+        function dance(filtered_data) {
+            bars
+                .selectAll("path")
+                .data(filtered_data)//, d => d.group)
+                .join("path")
+                .attr("class", d =>  {
+                    console.log(d)
+                    return d.key
+                })
+                .attr("fill", d => color(d.key))
+                .attr("opacity", "0.95")
+                .transition()
+                .duration(700)
+                .ease(d3.easeLinear)
+                .attr("d", area)
+                .append("title")
+                // .selectAll(".bar")
+                // .data(filtered_data, d => d.group)
+                // .join("rect")
+                // .attr("class", "bar")
+                // .transition()
+                // .duration(500)
+                // .ease(d3.easeLinear)
+                // .attr("y", d => y(d.group))
+                // .attr("height", y.bandwidth)
+                // .attr("x", d => x(0))
+                // .attr("width", d => x(d.percent) - x(0))
+                // .style("fill", "lightblue")
+
+        }
+
+        var timer = d3.interval(update, 3000) //in milliseconds
+
 
         // text = svg.append('text').text('Notes')
         //     .attr('x', 0)
