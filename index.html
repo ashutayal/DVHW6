@@ -20,24 +20,24 @@
         }
 
         h1 {
-            margin-left: 55px;
-            font-family: sans-serif;
-            font-weight: 200;
+            margin-left: 30px;
+            font-family:sans-serif;
+            font-weight: 100;
             font-size: 30px;
             /* margin: auto; */
             /* border: 20px solid white; */
         }
 
         .x .tick line {
-            stroke: #eee;
+            stroke: #333333;
             stroke-width: 1px;
             opacity: 1;
         }
 
         .y .tick line {
-            stroke: #eee;
+            stroke: #333333;
             stroke-width: 1px;
-            opacity: 1;
+            opacity: 0.2;
         }
 
         .x .domain {
@@ -49,7 +49,7 @@
         }
 
         .y .tick text {
-            font-size: 14px;
+            font-size: 12px;
             fill: #333333;
             font-family: sans-serif;
             font-weight: 200;
@@ -57,7 +57,7 @@
         }
 
         .x .tick text {
-            font-size: 14px;
+            font-size: 12px;
             font-family: sans-serif;
             fill: #333333;
             font-weight: 200;
@@ -128,7 +128,7 @@
         })
         console.log({data})
 
-        let margin = { top: -10, right: 10, bottom: 10, left: 30 };
+        let margin = { top: -10, right: 10, bottom: 10, left: 0 };
         const p = Math.max(0, d3.precisionFixed(0.05) - 2);
         const formatValue = d3.format("." + p + "%");
 
@@ -163,6 +163,29 @@
         let data20 = data.filter(d => d.year == "2020")
 
 
+        //uninsured text
+        let xx1 = 80;
+        let yy1 = 100;
+
+
+        //medicare text
+        let xx2 = 70;
+        let yy2 = 330;
+
+        // medicaid text
+        let xx3 = 50;
+        let yy3 = 430;
+
+        // employer text
+        let xx4 = 610;
+        let yy4 = 250;
+        
+        // direct purchase text
+        let xx5 = 800;
+        let yy5 = 30;
+        
+
+
     //     //https://github.com/d3/d3-shape#stacks
         let series = d3.stack().keys(sel_cols)(data09); // Main year! change here to update chart
 
@@ -188,7 +211,7 @@
             .y1(d => y(d[1]))
 
         let xAxisSettings = d3.axisBottom(x)
-            .tickSize(20-height)
+            .tickSize(5)
             .tickValues([5,10,20,30,40,50,60,70,80,90,95])
             .tickPadding(10)
             .ticks(15)
@@ -203,8 +226,7 @@
 
         let yAxisSettings = d3.axisLeft(y)
             .ticks(5)
-            .tickSize(10-width)
-            .tickPadding(-15)
+            .tickSize(5)
             .tickValues([0.20, 0.40, .60,.80])
             .tickFormat(function(d) { return formatValue(d); });
 
@@ -219,6 +241,10 @@
 
 
         //labelling 
+
+
+            
+           
         let bars = svg.append("g")
 
         bars
@@ -234,23 +260,162 @@
             .attr("d", area)
             .append("title")
 
+        uninsured_text =  svg.append('text')
+            .text('Uninsured')
+            .attr('fill', 'white')
+            .attr('x', xx1)
+            .attr('y', yy1)
+            .attr('font-size', '20px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
+            .attr("opacity", "1")
+
+        medicare_text =  svg.append('text')
+            .text('Medicare')
+            .attr('fill', 'black')
+            .attr('x', xx2)
+            .attr('y', yy2)
+            .attr('font-size', '20px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
+            .attr("opacity", "1")
+
+        medicaid_text =  svg.append('text')
+            .text('Medicaid')
+            .attr('fill', 'white')
+            .attr('x', xx3)
+            .attr('y', yy3)
+            .attr('font-size', '20px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
+            .attr("opacity", "1")
+
+        employer_text =  svg.append('text')
+            .text('Employer')
+            .attr('fill', 'black')
+            .attr('x', xx4)
+            .attr('y', yy4)
+            .attr('font-size', '20px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
+            .attr("opacity", "1")
+
+        direct_text =  svg.append('text')
+            .text('Direct Purchase')
+            .attr('fill', 'black')
+            .attr('x', xx5)
+            .attr('y', yy5)
+            .attr('font-size', '12px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
+            .attr("opacity", "1")
+
+
 
         function update() {
             // console.log("update")
 
             if (flag == 0) {
                 flag = 1
+               // 2020 new placement
+                xx1 = 140 //uninsured
+                yy1 = 80
+
+                xx2 = 40 //medicare
+                yy2 = 280
+
+                xx3 = 35 //medicaid
+                yy3 = 400
+
+                xx4 = 600 //employer
+                yy4 = 225
+
+                xx5 = 800 //direct
+                yy5 = 25
+
+
+
                 series = d3.stack().keys(sel_cols)(data20);
                 hed.html("2020")
+                dance_labels(xx1, yy1)  
                 dance(series)
-                
+              
             } else {
                 series = d3.stack().keys(sel_cols)(data09);
                 flag = 0
+
+                //2009 original placement
+                xx1 = 80 //uninsured
+                yy1 = 100
+
+                xx2 = 70 //medicare
+                yy2 = 330
+
+                xx3 = 50 //medicaid
+                yy3 = 430
+
+                xx4 = 610 //employer
+                yy4 = 250
+
+                xx5 = 800 //direct
+                yy5 = 30
+                
+
                 hed.html("2009")
+                dance_labels(xx1, yy1)  
                 dance(series)
+                
             }
         }
+
+
+
+
+
+        // uninsured_positions[flag]
+
+        function dance_labels(xx1, yy1) {
+            uninsured_text
+                .transition()
+                .duration(700)
+                .ease(d3.easeLinear)
+                .attr('x', xx1)
+                .attr('y', yy1)
+
+            medicare_text
+                .transition()
+                .duration(700)
+                .ease(d3.easeLinear)
+                .attr('x', xx2)
+                .attr('y', yy2)
+
+            medicaid_text
+                .transition()
+                .duration(700)
+                .ease(d3.easeLinear)
+                .attr('x', xx3)
+                .attr('y', yy3)
+
+            employer_text
+                .transition()
+                .duration(700)
+                .ease(d3.easeLinear)
+                .attr('x', xx4)
+                .attr('y', yy4)
+            
+            direct_text
+                .transition()
+                .duration(700)
+                .ease(d3.easeLinear)
+                .attr('x', xx5)
+                .attr('y', yy5)
+
+            
+
+
+        }
+
+
 
         function dance(filtered_data) {
             bars
@@ -268,104 +433,163 @@
                 .ease(d3.easeLinear)
                 .attr("d", area)
                 .append("title")
-                // .selectAll(".bar")
-                // .data(filtered_data, d => d.group)
-                // .join("rect")
-                // .attr("class", "bar")
-                // .transition()
-                // .duration(500)
-                // .ease(d3.easeLinear)
-                // .attr("y", d => y(d.group))
-                // .attr("height", y.bandwidth)
-                // .attr("x", d => x(0))
-                // .attr("width", d => x(d.percent) - x(0))
-                // .style("fill", "lightblue")
+
 
         }
+
+
+
+
 
         var timer = d3.interval(update, 3000) //in milliseconds
 
 
-        // text = svg.append('text').text('Notes')
-        //     .attr('x', 0)
-        //     .attr('y', height+55)
-        //     .attr('fill', '#666666')
-        //     .attr('font-size', '11px')
-        //     .attr('font-family', "Arial")
-        //     .attr('font-weight', 200)
-        //     .attr('font-weight', 'bold')
+        text = svg.append('text').text('Medicare and Medicaid')
+            .attr('x', 360)
+            .attr('y', -18)
+            .attr('fill', '#333333')
+            .attr('font-size', '12px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
 
-        // text = svg.append('text').text('White collar includes professional and technical, managerial, sales and clerical jobs. Blue collar includes machine operators, assembly, manual labor and')
-        //     .attr('x', 0)
-        //     .attr('y', height+80)
-        //     .attr('fill', '#808080')
-        //     .attr('font-size', '12px')
-        //     .attr('font-family', "Arial")
+        let onebar = svg.append("rect") 
+            .attr("x", 345)  
+            .attr("y", -28)  
+            .attr("height", 12)
+            .attr("width", 12)
+            .style("fill", "rgb(253,216,53)")
 
-        // text = svg.append('text').text('construction jobs. Service includes food service, health care and personal service jobs')
-        //     .attr('x', 0)
-        //     .attr('y', height+95)
-        //     .attr('fill', '#808080')
-        //     .attr('font-size', '12px')
-        //     .attr('font-family', "Arial")
 
-        // text = svg.append('text').text('Source: IPUMS-USA, University Of Minnesota')
-        //     .attr('x', 0)
-        //     .attr('y', height+130)
-        //     .attr('fill', '#808080')
-        //     .attr('font-size', '12px')
-        //     .attr('font-family', "Arial")
+        text = svg.append('text').text('Subsidized Exchange')
+            .attr('x', 509)
+            .attr('y', -18)
+            .attr('fill', '#333333')
+            .attr('font-size', '12px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
 
-        // text = svg.append('text').text('Credit: Quoctrung Bui')
-        //     .attr('x', 0)
-        //     .attr('y', height+145)
-        //     .attr('fill', '#808080')
-        //     .attr('font-size', '12px')
-        //     .attr('font-family', "Arial")
+        onebar = svg.append("rect") 
+            .attr("x", 495)  
+            .attr("y", -28)  
+            .attr("height", 12)
+            .attr("width", 12)
+            // .style("opacity", ".9")
+            .style("fill", "rgb(240,98,146)")
 
-        // text = svg.append('text').text('The Decline Of Farming And The Rise Of Everything Else')
-        //     .attr('x', -10)
-        //     .attr('y', -15)
-        //     .attr('fill', '#666')
-        //     .attr('font-size', '25px')
-        //     .attr('font-family', 'gotham')
-        //     .attr('font-weight', 200)
+        text = svg.append('text').text('CHIP')
+            .attr('x', 647)
+            .attr('y', -18)
+            .attr('fill', '#333333')
+            .attr('font-size', '12px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
 
-        // text = svg.append('text').text('Farming')
-        //     .attr('x', 220)
-        //     .attr('y', 425)
-        //     .attr('fill', '#333')
-        //     .attr('font-size', '20px')
-        //     .attr('font-family', 'Helvetica')
+        onebar = svg.append("rect") 
+            .attr("x", 633)  
+            .attr("y", -28)  
+            .attr("height", 12)
+            .attr("width", 12)
+            .style("fill", "rgb(92,107,192)")
 
-        // text = svg.append('text').text('Other')
-        //     .attr('x', 600)
-        //     .attr('y', 485)
-        //     .attr('fill', '#333')
-        //     .attr('font-size', '20px')
-        //     .attr('font-family', 'Helvetica')
+        text = svg.append('text').text('Military')
+            .attr('x', 697)
+            .attr('y', -18)
+            .attr('fill', '#333333')
+            .attr('font-size', '12px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
 
-        // text = svg.append('text').text('White Collar')
-        //     .attr('x', 625)
-        //     .attr('y', 400)
-        //     .attr('fill', '#333')
-        //     .attr('font-size', '20px')
-        //     .attr('font-family', 'Helvetica')
+        onebar = svg.append("rect") 
+            .attr("x", 683)  
+            .attr("y", -28)  
+            .attr("height", 12)
+            .attr("width", 12)
+            .style("fill", "rgb(144,164,174)")
 
-        // text = svg.append('text').text('Services')
-        //     .attr('x', 615)
-        //     .attr('y', 275)
-        //     .attr('fill', '#333')
-        //     .attr('font-size', '20px')
-        //     .attr('font-family', 'Helvetica')
+        text = svg.append('text').text('Other')
+            .attr('x', 756)
+            .attr('y', -18)
+            .attr('fill', '#333333')
+            .attr('font-size', '12px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
+
+        onebar = svg.append("rect") 
+            .attr("x", 742)  
+            .attr("y", -28)  
+            .attr("height", 12)
+            .attr("width", 12)
+            .style("fill", "rgb(224,224,224)")
+
+        text = svg.append('text').text('INCOME PERCENTILE')
+            .attr('x', 340)
+            .attr('y', height+40)
+            .attr('fill', '#333333')
+            .attr('font-size', '12px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
+
+
+        // Note: The income measure used here is disposable income, which is defined as market income plus cash
+
+        text = svg.append('text').text('Note: The income measure used here is ')//disposable income, which is defined as market income plus cash')
+            .attr('x', 100)
+            .attr('y', height+70)
+            .attr('fill', '#999999')
+            .attr('font-size', '12px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
+
+        text = svg.append('text').text('disposable income')//, which is defined as market income plus cash')
+            .attr('x', 318)
+            .attr('y', height+70)
+            .attr('fill', '#333333')
+            .attr('font-size', '12px')
+            .attr('font-family', "sans-serif")
+            // .attr('font-weight', 200)
+            // .attr('font-weight', 'bold')
+
+        text = svg.append('text').text(', which is defined as market income plus cash')
+            .attr('x', 418)
+            .attr('y', height+70)
+            .attr('fill', '#999999')
+            .attr('font-size', '12px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
+
+        text = svg.append('text').text('transfers from the government and noncash benefits like food stamps and public housing. It excludes taxes,')
+            .attr('x', 100)
+            .attr('y', height+85)
+            .attr('fill', '#999999')
+            .attr('font-size', '12px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
+
+
         
-        // text = svg.append('text').text('Blue Collar')
-        //     .attr('x', 675)
-        //     .attr('y', 150)
-        //     .attr('fill', '#333')
-        //     .attr('font-size', '20px')
-        //     .attr('font-family', 'Helvetica')
+        text = svg.append('text').text('out-of-pocket medical spending, insurance premiums and other expenses. There have been small changes in')
+            .attr('x', 100)
+            .attr('y', height+100)
+            .attr('fill', '#999999')
+            .attr('font-size', '12px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
 
+        text = svg.append('text').text('the census questionnaire between the two survey dates. Source: Current Population Survey, analysis by Matt')
+            .attr('x', 100)
+            .attr('y', height+115)
+            .attr('fill', '#999999')
+            .attr('font-size', '12px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
+
+        text = svg.append('text').text('Bruenig')
+            .attr('x', 100)
+            .attr('y', height+130)
+            .attr('fill', '#999999')
+            .attr('font-size', '12px')
+            .attr('font-family', "sans-serif")
+            .attr('font-weight', 200)
 
     })
 
