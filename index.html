@@ -20,8 +20,12 @@
         }
 
         h1 {
-            margin: 25 auto;
-            border: 20px solid white;
+            margin-left: 55px;
+            font-family: sans-serif;
+            font-weight: 200;
+            font-size: 30px;
+            /* margin: auto; */
+            /* border: 20px solid white; */
         }
 
         .x .tick line {
@@ -46,13 +50,18 @@
 
         .y .tick text {
             font-size: 14px;
-            fill: #999;
+            fill: #333333;
+            font-family: sans-serif;
+            font-weight: 200;
 
         }
 
         .x .tick text {
             font-size: 14px;
-            fill: #999;
+            font-family: sans-serif;
+            fill: #333333;
+            font-weight: 200;
+
         }
 
         .label {
@@ -69,12 +78,15 @@
             max-width: 1000px;
             margin: 0 auto;
         }
+
+
     </style>
 </head>
 
 <body>
     <div class="chart-container">
         <h1 class="headline">
+            2009
         </h1>
         <!-- The Decline Of Farming And The Rise Of Everything Else -->
 
@@ -116,7 +128,7 @@
         })
         console.log({data})
 
-        let margin = { top: 10, right: 10, bottom: 10, left: 30 };
+        let margin = { top: -10, right: 10, bottom: 10, left: 30 };
         const p = Math.max(0, d3.precisionFixed(0.05) - 2);
         const formatValue = d3.format("." + p + "%");
 
@@ -146,7 +158,7 @@
             "rgb(224,224,224)" // "Other"
 
         ]
-        let year_state = 2009;
+        let flag = 1;
         let data09 = data.filter(d => d.year == "2009")
         let data20 = data.filter(d => d.year == "2020")
 
@@ -203,6 +215,9 @@
             .call(yAxisSettings)
             .call(g => g.selectAll(".domain").remove())
 
+        let hed = d3.select(".headline")
+
+
         //labelling 
         let bars = svg.append("g")
 
@@ -221,22 +236,20 @@
 
 
         function update() {
-            console.log("update")
-            console.log("old year state " + year_state);
+            // console.log("update")
 
-            if (year_state == 2009) {
-                year_state = 2020
+            if (flag == 0) {
+                flag = 1
                 series = d3.stack().keys(sel_cols)(data20);
+                hed.html("2020")
                 dance(series)
-                // hed.html("U.S. Age Distribution, <span class='highlight'>In 2020</span>")
-
+                
             } else {
                 series = d3.stack().keys(sel_cols)(data09);
-                year_state = 2009
+                flag = 0
+                hed.html("2009")
                 dance(series)
-                // hed.html("U.S. Age Distribution, <span class='highlight'>In 2009</span>")
             }
-            console.log("new year state " + year_state);
         }
 
         function dance(filtered_data) {
